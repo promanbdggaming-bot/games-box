@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telegram Puzzle Game</title>
+  <!-- Telegram WebApp Script -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      background-color: #1a1a2e;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    h2 { margin-bottom: 10px; }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 90px);
+      grid-template-rows: repeat(3, 90px);
+      gap: 5px;
+      background: #16213e;
+      padding: 10px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    .tile {
+      width: 90px;
+      height: 90px;
+      background-color: #0f3460;
+      color: #e94560;
+      font-size: 28px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s;
+    }
+    .tile.empty {
+      background-color: transparent;
+      border: 2px dashed #0f3460;
+      cursor: default;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background-color: #e94560;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🧩 Sliding Puzzle</h2>
+  <div id="board"></div>
+  <button onclick="shuffle()">Restart Game</button>
+
+  <script>
+    const board = document.getElementById('board');
+    let tiles = [1, 2, 3, 4, 5, 6, 7, 8, ""];
+
+    function drawBoard() {
+      board.innerHTML = "";
+      tiles.forEach((num, index) => {
+        const tile = document.createElement('div');
+        tile.classList.add('tile');
+        if (num === "") tile.classList.add('empty');
+        tile.innerText = num;
+        tile.addEventListener('click', () => moveTile(index));
+        board.appendChild(tile);
+      });
+    }
+
+    function moveTile(index) {
+      const emptyIndex = tiles.indexOf("");
+      const validMoves = [
+        index - 1, index + 1, index - 3, index + 3
+      ];
+
+      // Prevent wrapping around grid boundaries
+      if (index % 3 === 0 && emptyIndex === index - 1) return;
+      if (index % 3 === 2 && emptyIndex === index + 1) return;
+
+      if (validMoves.includes(emptyIndex)) {
+        [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
+        drawBoard();
+        checkWin();
+      }
+    }
+
+    function shuffle() {
+      for (let i = 0; i < 100; i++) {
+        const emptyIndex = tiles.indexOf("");
+        const possibleMoves = [];
+        if (emptyIndex % 3 !== 0) possibleMoves.push(emptyIndex - 1);
+        if (emptyIndex % 3 !== 2) possibleMoves.push(emptyIndex + 1);
+        if (emptyIndex >= 3) possibleMoves.push(emptyIndex - 3);
+        if (emptyIndex < 6) possibleMoves.push(emptyIndex + 3);
+
+        const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+        [tiles[emptyIndex], tiles[randomMove]] = [tiles[randomMove], tiles[emptyIndex]];
+      }
+      drawBoard();
+    }
+
+    function checkWin() {
+      const winState = [1, 2, 3, 4, 5, 6, 7, 8, ""];
+      if (JSON.stringify(tiles) === JSON.stringify(winState)) {
+        setTimeout(() => alert("🎉 Mubarak ho! Aap Jeet Gaye!"), 200);
+      }
+    }
+
+    shuffle();
+  </script>
+</body>
+</html>
